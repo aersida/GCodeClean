@@ -19,7 +19,7 @@ The 'community edition' of Visual Studio is free. But anything so long as you ca
 
 Once you've got the .NET 8.0 SDK installed.
 
-Get yourself to a command line prompt, change to the folder where you've cloned this repository to, and then to the CLI folder, and enter:
+Get yourself to a command line prompt, change to the folder where you've cloned this repository to, and then to the **CLI folder**, and enter:
 ```
 dotnet restore
 ```
