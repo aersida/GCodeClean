@@ -10,14 +10,14 @@ dotnet restore
 @DEL bin\release\gcodeclean-cli-%1-linux-x64.zip >NUL
 @DEL bin\release\gcodeclean-cli-%1-win-x64.zip >NUL
 
-@set outDir=cli/bin/release/net8.0/publish/
+@set outDir=cli/bin/release/net9.0/publish/
 @set destZip=bin/release/gcodeclean-cli-%1-
 
 @ECHO @dotnet publish --configuration Release /property:GenerateFullPaths=true /consoleloggerparameters:NoSummary --property:PublishDir=%outDir% -p:Version=%pver% --runtime %1 --self-contained
 
-@dotnet publish -p:PublishProfile=linux-arm -p:Version=%pver%
-@dotnet publish -p:PublishProfile=linux-x64 -p:Version=%pver%
-@dotnet publish -p:PublishProfile=win-x64 -p:Version=%pver%
+@dotnet publish cli/CLI.csproj -p:PublishProfile=linux-arm -p:Version=%pver%
+@dotnet publish cli/CLI.csproj -p:PublishProfile=linux-x64 -p:Version=%pver%
+@dotnet publish cli/CLI.csproj -p:PublishProfile=win-x64 -p:Version=%pver%
 @SET psCmdA="Add-Type -A 'System.IO.Compression.FileSystem'; [IO.Compression.ZipFile]::CreateFromDirectory("
 @SET psCmd=%psCmdA%'%outDir%linux-arm', '%destZip%linux-arm.zip');
 powershell.exe -nologo -noprofile -command %psCmd%

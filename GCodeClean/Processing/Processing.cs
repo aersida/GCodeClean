@@ -93,7 +93,7 @@ public static class Processing {
                 if (!preamble.AllLinesOutput) {
                     preamble.FlagAllLinesAsOutput();
                     if (!premableCompletionByGCodeClean) {
-                        yield return new Line("(Preamble completed)");
+                        yield return new Line(Default.PreambleCompleted);
                         yield return new Line("");
                     }
                 }
@@ -677,12 +677,8 @@ public static class Processing {
                 annotationTokens.Add(annotation);
             }
             var isDuplicate = true;
-            if (previousTokenCodes.Count != tokenCodes.Count) {
+            if (previousTokenCodes.Count != tokenCodes.Count || tokenCodes.Where((t, ix) => previousTokenCodes[ix] != t).Any()) {
                 isDuplicate = false;
-            } else {
-                if (tokenCodes.Where((t, ix) => previousTokenCodes[ix] != t).Any()) {
-                    isDuplicate = false;
-                }
             }
 
             if (!isDuplicate && annotationTokens.Count > 0) {

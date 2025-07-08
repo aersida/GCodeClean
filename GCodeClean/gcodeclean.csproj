@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <InvariantGlobalization>true</InvariantGlobalization>
     <!-- <UseSystemResourceKeys>true</UseSystemResourceKeys> -->
     <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="SonarAnalyzer.CSharp" Version="10.6.0.109712" />
+    <PackageReference Update="SonarAnalyzer.CSharp" Version="10.11.0.117924" />
   </ItemGroup>  
 
 </Project>
