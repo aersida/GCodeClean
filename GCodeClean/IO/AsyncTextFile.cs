@@ -41,7 +41,7 @@ public static class AsyncTextFile
         {
             await foreach (var line in lines)
             {
-                writer.WriteLine(line);
+                await writer.WriteLineAsync(line);
                 counter++;
             }
         }

@@ -18,6 +18,7 @@ public static class Program
 {
     public static async Task<int> Main(string[] args)
     {
+#nullable enable
         var filenameOption = new Option<FileInfo?>(
             name: "--filename",
             description: "Full path to the input filename"
@@ -89,17 +90,20 @@ public static class Program
         };
         rootCommand.AddCommand(cleanCommand);
         cleanCommand.SetHandler(async (filename, tokenDefs, annotate, lineNumbers, minimise, tolerance, arcTolerance, zClamp) => {
+            if (tokenDefs == null) {
+                throw new ArgumentNullException(nameof(tokenDefs), "The tokenDefs parameter cannot be null.");
+            }
             await RunCleanAsync(filename!, tokenDefs, annotate, lineNumbers, minimise, tolerance, arcTolerance, zClamp);
         },
         filenameOption, tokenDefsOption, annotateOption, lineNumbersOption, minimiseOption, toleranceOption, arcToleranceOption, zClampOption);
 
         var splitCommand = new Command("split", "Split your GCode file into individual cutting actions.") { filenameOption };
         rootCommand.AddCommand(splitCommand);
-        splitCommand.SetHandler((filename) => { RunSplit(filename!); }, filenameOption);
+        splitCommand.SetHandler(async (filename) => { await RunSplit(filename!); }, filenameOption);
 
         var mergeCommand = new Command("merge", "Merge a folder of files, produced by split, back into a single GCode file.") { folderOption };
         rootCommand.AddCommand(mergeCommand);
-        mergeCommand.SetHandler((folder) => { RunMerge(folder!); }, folderOption);
+        mergeCommand.SetHandler(async (folder) => { await RunMerge(folder!); }, folderOption);
 
         return await rootCommand.InvokeAsync(args);
     }

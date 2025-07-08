@@ -22,13 +22,14 @@ public static class Algorithm
         Console.WriteLine("Pass 0: Primary Edges");
 
         List<Edge> primaryEdges = [];
-        foreach (var (seq, subSeq, id, maxZ, tool, start, end) in nodes) {
+        // var (seq, subSeq, id, maxZ, tool, start, end)
+        foreach (var (seq, subSeq, id, _, tool, _, end) in nodes) {
             var matchingNodes = nodes.FindAll(n => n.Seq == seq && n.SubSeq == subSeq && n.Tool == tool && n.Id != id && n.Start.X == end.X && n.Start.Y == end.Y);
             if (matchingNodes.Count > 1) {
                 // This may be some kind of 'peck-drilling' operation, whatever it is
                 // simply take the first node
                 // where the start and end are the same
-                matchingNodes = matchingNodes.Where(mn => mn.Start.X == mn.End.X && mn.Start.Y == mn.End.Y).Take(1).ToList();
+                matchingNodes = [.. matchingNodes.Where(mn => mn.Start.X == mn.End.X && mn.Start.Y == mn.End.Y).Take(1)];
             }
             if (matchingNodes.Count == 1 && primaryEdges.GetEdge(matchingNodes[0].Id, id) == null) {
                 primaryEdges.Add(new Edge(id, matchingNodes[0].Id, 0M, 0));
@@ -141,7 +142,11 @@ public static class Algorithm
         List<List<short>> nodeLists = [];
 
         // Get the max weighting value less than 100, it's the edges with this value that we will sort before checking for loops
-        var maxWeighting = edges.Where(e => e.Weighting < 100).OrderByDescending(e => e.Weighting).First().Weighting;
+        var edgesWithValidWeighting = edges.Where(e => e.Weighting < 100).ToList();
+        if (edgesWithValidWeighting.Count == 0) {
+            return edges; // Return original edges if none have valid weighting
+        }
+        var maxWeighting = edgesWithValidWeighting.OrderByDescending(e => e.Weighting).First().Weighting;
 
         // Deep copy the edges first before starting, we want them in a specific order, and because the reordering at the end is destructive
         var testEdges = edges.Where(e => e.Weighting < maxWeighting).Select(e => new Edge(e.PrevId, e.NextId, e.Distance, e.Weighting)).ToList();
@@ -215,6 +220,12 @@ public static class Algorithm
                     // We could alternatively check if preceeding and succeeding are the same nodelist
                     LinkedList<Edge> nodeListEdges = new LinkedList<Edge>(matchingNodeListPreceeding.GetEdges(testEdges));
                     var distances = nodeListEdges.Select(nle => nle.Distance).Distinct().ToList();
+                    if (distances.Count == 0) {
+                        // Handle empty nodeListEdges case
+                        edge.Weighting = 100; // Do not use this
+                        testEdges[ix] = edge;
+                        continue;
+                    }
                     if (distances.Max() <= edge.Distance) {
                         edge.Weighting = 100; // Do not use this
                         testEdges[ix] = edge;
@@ -235,7 +246,6 @@ public static class Algorithm
                             var popEdgeIx = testEdges.IndexOf(popEdge);
                             popEdge.Weighting = 100;
                             testEdges[popEdgeIx] = popEdge;
-                            nodeListEdges.RemoveFirst();
                             var nodeListIx = nodeLists.IndexOf(matchingNodeListPreceeding);
                             nodeLists[nodeListIx] = nodeListEdges.ToList().GetNodeIds();
                         }
@@ -343,6 +353,9 @@ public static class Algorithm
         var lastToFirstEdge = new Edge(lastNode.Id, firstNode.Id, (lastNode.End, firstNode.Start).Distance(), weighting);
         if (lastToFirstEdge.Distance < maxEdge.Distance) {
             var maxEdgeIx = pairedEdges.IndexOf(maxEdge);
+            if (maxEdgeIx == -1) {
+                return pairedEdges; // Return original edges if maxEdge not found
+            }
             pairedEdges = [..pairedEdges[(maxEdgeIx+1)..], lastToFirstEdge, ..pairedEdges[0..maxEdgeIx]];
         }
 

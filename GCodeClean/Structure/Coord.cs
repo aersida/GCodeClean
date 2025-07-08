@@ -18,6 +18,8 @@ public enum CoordSet
     All = X | Y | Z
 }
 
+#nullable enable
+
 public class Coord
 {
     public decimal X { get; set; }
@@ -182,6 +184,26 @@ public class Coord
         };
 
         return coords3;
+    }
+
+    public override bool Equals(object? obj) {
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj is not Coord other) return false;
+        return X == other.X && Y == other.Y && Z == other.Z && Set == other.Set;
+    }
+
+    public override int GetHashCode() {
+        return HashCode.Combine(X, Y, Z, Set);
+    }
+
+    public static bool operator ==(Coord? left, Coord? right) {
+        if (ReferenceEquals(left, right)) return true;
+        if (left is null || right is null) return false;
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Coord? left, Coord? right) {
+        return !(left == right);
     }
 
     /// <summary>
